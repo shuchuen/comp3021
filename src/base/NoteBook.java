@@ -27,9 +27,10 @@ public class NoteBook {
 	private boolean insertNote(String folderName, Note note){
 		
 		Folder f = null;
+		Folder temp = new Folder(folderName);
 		
 		for (Folder f1 : folders) {
-			if(f1.equals(new Folder(folderName))){
+			if(f1.equals(temp)){
 				f = f1;
 			}
 		}
