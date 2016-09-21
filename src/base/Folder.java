@@ -78,49 +78,72 @@ public class Folder implements Comparable<Folder>{
 	public List<Note> searchNotes(String keywords){
 		List<Note> result = new ArrayList<Note>();
 		String[] keyArray = keywords.toLowerCase().split(" ");
+		ArrayList<String> keyList = new ArrayList<String>();
+		
+		String temp = "";
+		for(int i = 0; i< keyArray.length ; i++){
+			if(i+1 < keyArray.length){
+				if(keyArray[i+1].equals("or")){
+					temp = keyArray[i];
+					i++;
+				}else if (temp!="" && !keyArray[i+1].equals("or")){
+					temp = temp + " " + keyArray[i];
+					keyList.add(temp);
+					temp = "";
+				}else{
+					keyList.add(keyArray[i]);
+				}
+			}else{
+				if(keyArray[i-1].equals("or")){
+					temp = temp + " " + keyArray[i];
+					keyList.add(temp);
+					temp = "";
+				}else{
+					keyList.add(keyArray[i]);
+				}
+			}
+		}
 		
 		for(Note note : notes){
-			boolean temp = search(note, 0, keyArray);
-			if(temp){
+			boolean flag = true;
+			for(String key : keyList){
+				boolean br = isExist(note, key);
+				if(!br){
+					flag = false;
+					break;
+				}
+			}
+			
+			
+			if(flag){
 				result.add(note);
 			}
 		}
 		
 		return result;
 	}
-	
-	private boolean search(Note note, int pos, String[] keys){
 		
-		if(pos+1==keys.length){
-			return isExist(note, keys[pos]);
-		}
-		
-		if(keys[pos+1].equals("or")){
-			return isExist(note, keys[pos])|| search(note, pos+2, keys);
-		}else{
-			return isExist(note, keys[pos])&& search(note, pos+1, keys);
-		}
-		
-	}
-	
 	private boolean isExist(Note note, String keyword){
+		String[] keys = keyword.split(" ");
 		
-		if(note instanceof ImageNote){
-			if(note.getTitle().toLowerCase().contains(keyword)){
-				return true;
-			}
-		}
-		
-		if(note instanceof TextNote){
-			if(note.getTitle().toLowerCase().contains(keyword)){
-				return true;
+		for(String temp : keys){
+			if(note instanceof ImageNote){
+				if(note.getTitle().toLowerCase().contains(temp)){
+					return true;
+				}
 			}
 			
-			if(((TextNote)note).content.toLowerCase().contains(keyword)){
-				return true;
+			if(note instanceof TextNote){
+				if(note.getTitle().toLowerCase().contains(temp)){
+					return true;
+				}
+				
+				if(((TextNote)note).content.toLowerCase().contains(temp)){
+					return true;
+				}
 			}
+			
 		}
-		
 		return false;
 		
 	}
